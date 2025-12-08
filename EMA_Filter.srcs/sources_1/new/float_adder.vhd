@@ -112,7 +112,7 @@ begin
 
                             -- Overflow check
                             if exp_res > 254 then
-                                result <= sign_res & "11111111" & "00000000000000000000000"; -- Infinity
+                                result <= sign_res & "11111110" & "11111111111111111111111"; -- max float (approx. 3.4e38)
                             else
                                 result <= sign_res & std_logic_vector(exp_res(7 downto 0)) & mant_res; -- Assemble good result
                             end if;

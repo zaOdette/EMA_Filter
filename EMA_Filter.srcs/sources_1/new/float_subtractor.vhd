@@ -46,6 +46,7 @@ begin
         variable mant_temp                : unsigned(24 downto 0);
         variable mant_res                 : std_logic_vector(22 downto 0);
         variable exp_diff                 : integer range 0 to 255;
+        variable shift_count              : integer range 0 to 24;
     begin
     
         if rising_edge(aclk) then
@@ -118,23 +119,27 @@ begin
                                     exp_res := exp_res + 1;
                                 else
                                     -- Normalize left: remove implicit 1 (mant_temp has implicit at pos 23)
-                                    if mant_temp(23) = '1' then
+                                    shift_count := 0;
+                                    for i in 23 downto 0 loop
+                                        if mant_temp(23) = '1' then
+                                            shift_count := 23 - i;
+                                            exit;
+                                        end if;
+                                    end loop;
+                                    
+                                    mant_temp := shift_left(mant_temp, shift_count);
+                                    
+                                    if exp_res > shift_count then
+                                        exp_res := exp_res - shift_count;
                                         mant_res := std_logic_vector(mant_temp(22 downto 0));
+                                        result <= sign_res & std_logic_vector(exp_res(7 downto 0)) & mant_res;
                                     else
-                                    -- Normalize left until bit23 = '1' or exponent becomes zero
-                                        while mant_temp(23) = '0' and exp_res > 0 loop
-                                            mant_temp := shift_left(mant_temp, 1);
-                                            exp_res := exp_res - 1;
-                                        end loop;
-                                        -- Now top bit should be '1'
-                                        mant_res := std_logic_vector(mant_temp(22 downto 0));
+                                        -- Underflow case
+                                        result <= (others => '0');
                                     end if;
                                 end if;
-                                -- Assemble result
-                                result <= sign_res & std_logic_vector(exp_res(7 downto 0)) & mant_res;
                             end if;
                             
-                            -- Move to WRITE state
                             state <= S_WRITE;
                         end if;
 

@@ -76,20 +76,20 @@ begin
         wait for 40 ns;
         
         -- Example 2: 1.0 + 2.0 = 3.0 (0x40400000)
---        s_a_data <= x"3f800000";  -- 1.0
---        s_b_data <= x"40000000";  -- 2.0
---        s_a_valid <= '1';
---        s_b_valid <= '1';
---        m_ready <= '1';
---        wait for 40 ns;
+        s_a_data <= x"3f800000";  -- 1.0
+        s_b_data <= x"40000000";  -- 2.0
+        s_a_valid <= '1';
+        s_b_valid <= '1';
+        m_ready <= '1';
+        wait for 40 ns;
         
         -- Example 3: 1.37 + 1.32 = 2.69 (0x402c28f6)
---        s_a_data <= x"3faf5c29";  -- 1.37
---        s_b_data <= x"3fa8f5c3";  -- 1.32
---        s_a_valid <= '1';
---        s_b_valid <= '1';
---        m_ready <= '1';
---        wait for 40 ns;
+        s_a_data <= x"3faf5c29";  -- 1.37
+        s_b_data <= x"3fa8f5c3";  -- 1.32
+        s_a_valid <= '1';
+        s_b_valid <= '1';
+        m_ready <= '1';
+        wait for 40 ns;
 
         s_a_valid <= '0';
         s_b_valid <= '0';

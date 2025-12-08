@@ -236,19 +236,20 @@ begin
 
                     -- Processing loop
                     when S_IDLE =>
-                        fifo_out_valid <= '0'; -- Stop driving output
-                        
                         -- Wait for valid input data
                         if fifo_in_valid = '1' then
-                            -- Trigger both multipliers
-                            mult_a_start <= '1';
-                            mult_b_start <= '1';
+                            if unsigned(fifo_in_data(30 downto 23)) > 150 then
+                                fifo_in_ready <= '1';
+                                state <= S_IDLE;
+                            else
+                                -- Trigger both multipliers
+                                mult_a_start <= '1';
+                                mult_b_start <= '1';
                             
-                            -- Tell FIFO the data is taken
-                            fifo_in_ready <= '1';
-                            state <= S_CALC_MULTS_START;
-                        else
-                            fifo_in_ready <= '0';
+                                -- Tell FIFO the data is taken
+                                fifo_in_ready <= '1';
+                                state <= S_CALC_MULTS_START;
+                            end if;
                         end if;
 
                     when S_CALC_MULTS_START =>
