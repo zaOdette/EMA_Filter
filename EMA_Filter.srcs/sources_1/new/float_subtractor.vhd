@@ -121,7 +121,7 @@ begin
                                     -- Normalize left: remove implicit 1 (mant_temp has implicit at pos 23)
                                     shift_count := 0;
                                     for i in 23 downto 0 loop
-                                        if mant_temp(23) = '1' then
+                                        if mant_temp(i) = '1' then
                                             shift_count := 23 - i;
                                             exit;
                                         end if;
