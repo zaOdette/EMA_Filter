@@ -16,20 +16,20 @@ end axi_UART;
 architecture Behavioral of axi_UART is
 
     -- UART CONFIGURATION (50MHz / 9600 baud = 5208 ticks)
-    constant CLKS_PER_BIT : integer := 5208;
+    constant CLKS_PER_BIT : integer := 5208; -- how many clk cycles it takes to read 1 bit
 
     type rx_state_type is (S_IDLE, S_START_BIT, S_DATA_BITS, S_STOP_BIT, S_PACKET_CHECK);
     signal state : rx_state_type := S_IDLE;
 
     signal clk_count : integer range 0 to CLKS_PER_BIT := 0;
     signal bit_index : integer range 0 to 7 := 0;
-    signal rx_byte   : std_logic_vector(7 downto 0) := (others => '0');
-    signal byte_done : std_logic := '0';
+    signal rx_byte   : std_logic_vector(7 downto 0) := (others => '0'); -- byte (formed by the 8 bits) received via rx
+    signal byte_done : std_logic := '0'; -- DELETE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     -- Packet assembly (4 Bytes -> 1 Float)
     signal byte_counter : integer range 0 to 4 := 0;
-    signal assembly_reg : std_logic_vector(31 downto 0) := (others => '0');
-    signal valid_out    : std_logic := '0';
+    signal assembly_reg : std_logic_vector(31 downto 0) := (others => '0');  -- where the 4 bytes are assembled
+    signal valid_out    : std_logic := '0'; -- signals when the whole 4 byte number is ready
 
 begin
     m_axis_tvalid <= valid_out;
@@ -47,7 +47,7 @@ begin
                 assembly_reg <= (others => '0');
             else
                 
-                -- UART RECEIVER FSM (Reads 1 Byte at a time)
+                -- UART RECEIVER FSM (reads 1 Byte at a time)
                 case state is
                     -- Wait for START BIT (line goes low)
                     when S_IDLE =>
@@ -64,13 +64,13 @@ begin
                                 clk_count <= 0;
                                 state <= S_DATA_BITS;
                             else
-                                state <= S_IDLE; -- False start
+                                state <= S_IDLE; -- false start
                             end if;
                         else
                             clk_count <= clk_count + 1;
                         end if;
 
-                    -- Sample 8 Data Bits
+                    -- Sample 8 data bits
                     when S_DATA_BITS =>
                         if clk_count = CLKS_PER_BIT then
                             clk_count <= 0;
@@ -86,7 +86,7 @@ begin
                             clk_count <= clk_count + 1;
                         end if;
 
-                    -- Wait for STOP BIT (High)
+                    -- Wait for STOP BIT (line goes high)
                     when S_STOP_BIT =>
                         if clk_count = CLKS_PER_BIT then
                             state <= S_PACKET_CHECK;
@@ -95,18 +95,15 @@ begin
                             clk_count <= clk_count + 1;
                         end if;
 
-                    -- PACKET ASSEMBLER (Groups 4 Bytes into 1 Float)
+                    -- PACKET ASSEMBLER (groups 4 Bytes into 1 Float)
                     when S_PACKET_CHECK =>
-                        -- We have a new valid byte in 'rx_byte'
-                        
-                        -- Shift the new byte into the assembly register (Big Endian Shift)
-                        -- Example: [BB] -> [BB 00] -> [BB CC 00] ...
+                        -- Shift the new byte into the assembly register
+                        -- Ex: [AA] -> [AA 00] -> [AA BB 00] -> ...
                         assembly_reg <= assembly_reg(23 downto 0) & rx_byte;
                         
-                        -- Increment byte counter
                         if byte_counter = 3 then
                             byte_counter <= 0;
-                            valid_out <= '1'; -- We have a full 32-bit float now
+                            valid_out <= '1'; -- full 32 bit float
                         else
                             byte_counter <= byte_counter + 1;
                         end if;
@@ -115,9 +112,7 @@ begin
 
                 end case;
 
-                -- AXI HANDSHAKE RESET
-                -- If we asserted Valid, and the Downstream (EMA) asserted Ready,
-                -- we drop Valid and wait for the next packet.
+                -- AXI HANDSHAKE
                 if valid_out = '1' and m_axis_tready = '1' then
                     valid_out <= '0';
                 end if;

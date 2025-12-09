@@ -10,15 +10,15 @@ entity SSD is
         s_axis_tready : out std_logic;
         s_axis_tdata  : in  std_logic_vector(31 downto 0);
         display_sel   : in  std_logic; -- Control switch (upper/lower 16 bits)
-        cat           : out std_logic_vector(6 downto 0);  -- Cathodes (a-g)
-        an            : out std_logic_vector(3 downto 0)   -- Anodes (digit select)
+        cat           : out std_logic_vector(6 downto 0); -- Cathodes (a-g)
+        an            : out std_logic_vector(3 downto 0) -- Anodes (digit select)
     );
 end SSD;
 
 architecture Behavioral of SSD is
 
-    signal stored_data : std_logic_vector(31 downto 0) := (others => '0'); -- holds the last VALID value received
-    signal display_value : std_logic_vector(15 downto 0); -- muxed data (16 bits)
+    signal stored_data     : std_logic_vector(31 downto 0) := (others => '0'); -- holds the last VALID value received
+    signal display_value   : std_logic_vector(15 downto 0); -- muxed data (16 bits)
     signal refresh_counter : unsigned(19 downto 0) := (others => '0');
     signal digit_select    : std_logic_vector(1 downto 0); -- anode
     signal hex_digit       : std_logic_vector(3 downto 0); -- cathode
@@ -60,16 +60,16 @@ begin
     begin
         case digit_select is
             when "00" =>
-                an <= "1110"; -- Rightmost digit
+                an <= "1110"; -- rightmost digit
                 hex_digit <= display_value(3 downto 0);
             when "01" =>
-                an <= "1101"; -- Middle right digit
+                an <= "1101"; -- middle right digit
                 hex_digit <= display_value(7 downto 4);
             when "10" =>
-                an <= "1011"; -- Middle left digit
+                an <= "1011"; -- middle left digit
                 hex_digit <= display_value(11 downto 8);
             when "11" =>
-                an <= "0111"; -- Leftmost digit
+                an <= "0111"; -- leftmost digit
                 hex_digit <= display_value(15 downto 12);
             when others =>
                 an <= "1111";

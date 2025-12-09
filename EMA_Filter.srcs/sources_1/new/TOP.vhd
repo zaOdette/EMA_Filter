@@ -57,12 +57,14 @@ architecture Behavioral of TOP is
     signal alpha_config : std_logic_vector(31 downto 0);
     
     -- UART -> Filter
-    signal uart_valid, uart_ready : std_logic;
-    signal uart_data : std_logic_vector(31 downto 0);
+    signal uart_valid : std_logic;
+    signal uart_ready : std_logic;
+    signal uart_data  : std_logic_vector(31 downto 0);
     
     -- Filter -> Display
-    signal result_valid, result_ready : std_logic;
-    signal result_data : std_logic_vector(31 downto 0);
+    signal result_valid : std_logic;
+    signal result_ready : std_logic;
+    signal result_data  : std_logic_vector(31 downto 0);
     
     signal slow_clk : std_logic := '0';
     signal clk_divider : std_logic := '0';
